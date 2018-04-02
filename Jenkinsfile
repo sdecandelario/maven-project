@@ -14,31 +14,30 @@ pipeline {
         maven 'localMaven'
     }
 
-    stages{
-            stage('Build'){
-                steps {
-                    sh 'mvn clean package'
-                }
-                post {
-                    success {
-                        echo 'Now Archiving...'
-                        archiveArtifacts artifacts: '**/target/*.war'
-                    }
+    stages {
+        stage('Build'){
+            steps {
+                sh 'mvn clean package'
+            }
+            post {
+                success {
+                    echo 'Now Archiving...'
+                    archiveArtifacts artifacts: '**/target/*.war'
                 }
             }
+        }
 
-            stage ('Deployments'){
-                parallel{
-                    stage ('Deploy to Staging'){
-                        steps {
-                            sh "docker cp **/target/*.war ${params.tomcat_staging}:webapps"
-                        }
+        stage ('Deployments'){
+            parallel{
+                stage ('Deploy to Staging'){
+                    steps {
+                        sh "docker cp **/target/*.war ${params.tomcat_staging}:webapps"
                     }
+                }
 
-                    stage ("Deploy to Production"){
-                        steps {
-                            sh "docker cp **/target/*.war ${params.tomcat_prod}:webapps"
-                        }
+                stage ("Deploy to Production"){
+                    steps {
+                        sh "docker cp **/target/*.war ${params.tomcat_prod}:webapps"
                     }
                 }
             }
